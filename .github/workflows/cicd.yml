@@ -83,8 +83,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
 
-      - name: Install AWS CDK
-        run: npm install -g aws-cdk
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install AWS CDK & ts-node
+        run: |
+          npm install -g aws-cdk ts-node typescript
+
+      - name: Install project dependencies
+        working-directory: ./my-cdk-app
+        run: npm ci
 
       - name: Deploy ECR stack and capture URI
         working-directory: ./my-cdk-app
@@ -140,4 +150,4 @@ jobs:
 
       - name: Deploy all CDK stacks
         working-directory: ./my-cdk-app
-        run: cdk deploy --all --require-approval never
+        run: cdk deploy --all --require
