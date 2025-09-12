@@ -98,13 +98,14 @@ jobs:
       - name: Deploy ECR stack and capture URI
         working-directory: ./my-cdk-app
         run: |
+          echo "Deploying ECR Stack..."
           cdk deploy EcrStack --require-approval never --outputs-file outputs.json
           cat outputs.json
           ECR_URI=$(jq -r '.EcrStack.ECRRepoURI' outputs.json)
           echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
 
       - name: Debug ECR URI
-        run: echo "ECR_URI is ${{ env.ECR_URI }}"
+        run: echo "ECR URI is ${{ env.ECR_URI }}"
 
   docker_build_and_push:
     runs-on: ubuntu-latest
@@ -121,7 +122,9 @@ jobs:
 
       - name: Build Docker image
         working-directory: ./my-cdk-app/app
-        run: docker build -t ${{ env.ECR_URI }}:latest .
+        run: |
+          echo "Building Docker image with tag ${{ env.ECR_URI }}:latest"
+          docker build -t ${{ env.ECR_URI }}:latest .
 
       - name: Push Docker image
         run: docker push ${{ env.ECR_URI }}:latest
