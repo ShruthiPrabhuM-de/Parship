@@ -90,7 +90,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
-        working-directory: ./my-cdk-app   # ✅ Make sure Docker build uses the correct folder
+        working-directory: ./my-cdk-app/app   # ✅ Make sure Docker build uses the correct folder
         run: docker build -t ${{ secrets.ECR_REPOSITORY_URI }}:latest .
 
       - name: Push Docker image to ECR
