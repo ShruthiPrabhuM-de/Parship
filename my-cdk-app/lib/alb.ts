@@ -22,7 +22,7 @@ export class AlbStack extends cdk.Stack {
       allowAllOutbound: true,
     });
 
-    albSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(8000), 'Allow HTTP from anywhere');
+    albSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP from anywhere');
 
     // 2. Public Application Load Balancer
     const alb = new elbv2.ApplicationLoadBalancer(this, 'MyAlb', {
@@ -34,7 +34,7 @@ export class AlbStack extends cdk.Stack {
 
     // 3. Listener
     const listener = alb.addListener('HttpListener', {
-      port: 8000,
+      port: 80,
       open: true,
     });
 
