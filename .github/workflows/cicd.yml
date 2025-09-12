@@ -163,3 +163,39 @@ jobs:
       - name: Deploy all CDK stacks
         working-directory: ./my-cdk-app
         run: cdk deploy --all --require-approval never
+
+  destroy:   # ✅ Add this job at the end
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk
+
+      - name: Install CDK dependencies
+        working-directory: ./my-cdk-app
+        run: npm ci
+
+      - name: Destroy ECS Service Stack
+        working-directory: ./my-cdk-app
+        run: cdk destroy EcsServiceStack --force --require-approval never
+
+      - name: Destroy ALB Stack
+        working-directory: ./my-cdk-app
+        run: cdk destroy AlbStack --force --require-approval never
+
+      - name: Destroy ECR Stack
+        working-directory: ./my-cdk-app
+        run: cdk destroy EcrStack --force --require-approval never      
