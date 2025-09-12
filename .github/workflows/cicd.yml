@@ -88,20 +88,21 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install AWS CDK & ts-node
-        run: |
-          npm install -g aws-cdk ts-node typescript
-
-      - name: Install project dependencies
-        working-directory: ./my-cdk-app
-        run: npm ci
-
       - name: Deploy ECR stack and capture URI
         working-directory: ./my-cdk-app
         run: |
           cdk deploy EcrStack --require-approval never --outputs-file outputs.json
+          cat outputs.json   # debug: see actual output
           export ECR_URI=$(jq -r '.EcrStack.ECRRepoURI' outputs.json)
+          echo "ECR_URI=$ECR_URI"
           echo "ECR_URI=$ECR_URI" >> $GITHUB_ENV
+
+      - name: Debug ECR URI
+        run: echo "ECR URI is: $ECR_URI"
+
+      - name: Build Docker image
+        working-directory: ./my-cdk-app/app
+        run: docker build -t $ECR_URI:latest .
 
   docker_build_and_push:
     runs-on: ubuntu-latest
@@ -150,4 +151,4 @@ jobs:
 
       - name: Deploy all CDK stacks
         working-directory: ./my-cdk-app
-        run: cdk deploy --all --require
+        run: cdk deploy --all --require-approval never
