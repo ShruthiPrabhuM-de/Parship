@@ -70,7 +70,8 @@ jobs:
         run: ruff check .
 
       - name: Run Pytest
-        run: pytest -v main.py
+        working-directory: ./my-cdk-app/app
+        run: pytest -v
 
   test:
     runs-on: ubuntu-latest
