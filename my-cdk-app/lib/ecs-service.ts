@@ -3,10 +3,12 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 interface EcsServiceStackProps extends cdk.StackProps {
   cluster: ecs.Cluster;
   repository: ecr.IRepository;
+  taskRole?: iam.IRole;
 }
 
 export class EcsServiceStack extends cdk.Stack {
