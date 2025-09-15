@@ -1,134 +1,125 @@
+🚀 FastAPI on AWS with CDK & GitHub Actions
 
-# 🚀 FastAPI on AWS with CDK & GitHub Actions
+This project demonstrates a production-ready approach to deploying a FastAPI application on AWS using infrastructure as code (IaC). The goal is to make the deployment reliable, secure, and easy to maintain.
 
-## Overview
+After following this guide, your application will show a “Hello World” message when accessed through the load balancer.
 
-This project demonstrates a production-grade approach** to deploying a small application with a focus on reliability, security, and maintainability.
+🛠️ Tools Used
 
-It uses:
+Python 3.9+ → FastAPI application
 
-* **FastAPI** → lightweight Python web framework for the application
-* **AWS CDK (TypeScript)** → Infrastructure as Code to provision AWS resources
-* **GitHub Actions** → CI/CD pipeline with testing, linting, and security checks
-* **Docker & ECR** → containerization and secure image storage
-* **ECS (EC2)** + **ALB** → scalable and reliable application hosting
+FastAPI → Lightweight Python web framework
 
+Docker → Containerization of the app
 
-## 🛠️ Prerequisites
+AWS CDK (TypeScript) → Provision AWS resources using code
 
-Before running or deploying this project, ensure you have the following installed and configured:
+AWS ECS (EC2) → Host and scale containerized apps
 
-### Local Setup
+Amazon ECR → Store Docker images securely
 
-* **Python 3.9+** (tested with 3.11)
-* **pip** package manager
-* **Node.js v18+** (required for AWS CDK)
-* **npm** (bundled with Node.js)
-* **Docker** (to build and test images locally)
-* **Git** (for cloning and version control)
+Application Load Balancer (ALB) → Expose application publicly
 
-### AWS Setup
+GitHub Actions → CI/CD pipeline for building, testing, and deploying
 
-* **AWS Account** with permissions for:
+Trivy → Vulnerability scanning for container images
 
-  * ECR (Elastic Container Registry)
-  * ECS (Elastic Container Service)
-  * EC2 + VPC + Security Groups
-  * IAM (to create roles for ECS tasks)
-  * ALB (Application Load Balancer)
-* **AWS CLI** installed and configured with `aws configure`
-* **AWS CDK CLI** installed globally:
+Gitleaks → Secret scanning in code repositories
 
+Ruff → Python linter
 
-  npm install -g aws-cdk
- 
-* **CDK Bootstrap** (run once per account/region):
+Pytest → Unit testing framework
 
-  
-  cdk bootstrap aws://<ACCOUNT_ID>/<REGION>
-
-
-### GitHub Actions Secrets
-
-* `AWS_ACCESS_KEY_ID` → IAM access key
-* `AWS_SECRET_ACCESS_KEY` → IAM secret key
-
-
-
-## 🏗️ Architecture
-
-
-## 📂 Repository Structure
-
-```
-.
-├── .github/workflows/ci.yaml     # GitHub Actions pipeline
+📂 Repository Structure
+├── .github/workflows/ci.yaml     # GitHub Actions CI/CD pipeline
 ├── my-cdk-app/
-│   ├── bin/my-cdk-app.ts         # CDK app entrypoint
+│   ├── bin/my-cdk-app.ts         # CDK entrypoint
 │   ├── lib/                      # Modular CDK stacks
-│   │   ├── ecr.ts                # ECR repository
-│   │   ├── ecs-cluster.ts        # ECS cluster + VPC
-│   │   ├── ecs-service.ts        # ECS service + task definition
-│   │   └── alb.ts                # Application Load Balancer
+│   │   ├── iam-stack.ts          # IAM stack (CI/CD user, roles, policies)
+│   │   ├── ecr.ts                # ECR repository stack
+│   │   ├── ecs-cluster.ts        # ECS cluster + VPC stack
+│   │   ├── ecs-service.ts        # ECS service + task definition stack
+│   │   └── alb.ts                # ALB stack
 │   └── package.json              # CDK dependencies
 └── app/                          # FastAPI application
-    ├── main.py                   # Unit tests (pytest)
+    ├── main.py                   # Application code
     ├── requirements.txt          # Python dependencies
-    └── Dockerfile                # Container build
+    ├── Dockerfile                # Container image build
+    └── test_main.py              # Unit tests for FastAPI app
 
+⚙️ Infrastructure as Code (IaC)
 
-## ⚙️ Infrastructure as Code (IaC)
+Written in AWS CDK (TypeScript)
 
-* Written in **AWS CDK (TypeScript)**
-* **Stacks are modular**:
+Modular Stacks:
 
-  * `EcrStack`: ECR repository with image scanning enabled
-  * `EcsClusterStack`: VPC + ECS Cluster + EC2 capacity
-  * `EcsServiceStack`: ECS task/service, CloudWatch logs, container definition
-  * `AlbStack`: Public ALB with listener & health checks
+IamStack → IAM roles and policies for CI/CD
 
- Following **principle of least privilege**, each stack does only one job.
+EcrStack → Creates ECR repository for images
 
-## 🔄 CI/CD Pipeline
+EcsClusterStack → VPC + ECS Cluster + EC2 capacity
 
-The GitHub Actions workflow (`ci.yaml`) runs on pushes to `main`:
+EcsServiceStack → ECS service, task definition, CloudWatch logs
 
-1. **Build** → Compile CDK code (`npm run build`)
-2. **Security checks** →
+AlbStack → Public ALB with listener and health checks
 
-   * [Trivy](https://aquasecurity.github.io/trivy/) → file system / Docker image scans
-   * [Gitleaks](https://github.com/zricethezav/gitleaks) → secret scanning
-3. **Python app checks** →
+Each stack is responsible for one main resource
 
-   * `ruff` → linting
-   * `pytest` → unit tests for FastAPI
-4. **Deploy ECR stack** → Creates repo & outputs URI
-5. **Build & push Docker image** → Pushes FastAPI app image to ECR
-6. **Deploy remaining stacks** → ECS Cluster + Service + ALB
+Principle of least privilege followed for IAM roles
 
-✅ If linting, tests, or scans fail → deployment stops.
+🔄 CI/CD Pipeline
 
+Defined in .github/workflows/cicd.yaml, triggered on pushes to main.
 
-## 🧪 Application (FastAPI)
+Pipeline steps:
 
+Build CDK code (npm run build)
 
-Unit test with `pytest` (`app/main.py`):
+Security scans
 
-from fastapi.testclient import TestClient
-from main import app
+Trivy → Scan Docker images for vulnerabilities
 
-client = TestClient(app)
+Gitleaks → Scan repository for secrets
 
-def test_read_main():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"msg": "Hello World"}
+Python app checks
 
+Ruff → Linting
 
-## ▶️ Running Locally
+Pytest → Unit tests
 
-### FastAPI without Docker
+Deploy ECR stack → Creates repository & outputs URI
 
+Build & push Docker image → Push FastAPI image to ECR
+
+Deploy remaining stacks → ECS Cluster, Service, and ALB
+
+If any step fails (linting, testing, scanning), deployment stops automatically.
+
+🔑 Managing Secrets
+GitHub Actions Secrets
+
+For CI/CD to deploy, you need to securely store credentials in GitHub:
+
+AWS_ACCESS_KEY_ID → IAM access key
+
+AWS_SECRET_ACCESS_KEY → IAM secret key
+
+Steps:
+
+Go to your GitHub repository → Settings → Secrets and variables → Actions
+
+Add your AWS credentials as repository secrets
+
+Reference them in your GitHub Actions workflow (ci.yaml)
+
+Example snippet in workflow:
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+🧪 Local Testing
+FastAPI without Docker
 cd app
 python -m venv .venv
 source .venv/bin/activate
@@ -136,49 +127,92 @@ pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 
 
-### With Docker
+Access → http://localhost:8000 → Hello World
 
+With Docker
 cd app
 docker build -t fastapi-app:local .
 docker run -p 8000:8000 fastapi-app:local
 
 
-### Run Tests
+Access → http://localhost:8000 → Hello World
 
+Run Tests
 pytest -v
 ruff check .
 
+☁️ Deploying to AWS (CDK)
+1. Bootstrap CDK Environment
+cdk bootstrap aws://<ACCOUNT_ID>/<REGION>
 
-## ☁️ Deploying to AWS (CDK)
-
+2. Install & Build CDK
 cd my-cdk-app
 npm ci
 npm run build
 
-# Deploy ECR first
+3. CDK Workflow
+
+Synthesize CloudFormation:
+
+cdk synth
+
+
+List stacks:
+
+cdk list
+
+
+Deploy ECR:
+
 cdk deploy EcrStack --require-approval never
 
-# Deploy everything
+
+Build & push Docker image:
+
+cd app
+docker build -t my-app:latest .
+docker tag my-app:latest <ECR_REPOSITORY_URI>:latest
+docker push <ECR_REPOSITORY_URI>:latest
+
+
+Deploy remaining stacks:
+
 cdk deploy --all --require-approval never
 
-# Destroy resources
+
+✅ Once deployed, your ALB URL will serve the FastAPI “Hello World” application.
+
+4. Destroy Stacks (Gracefully)
+
+Destroy stacks in reverse dependency order:
+
+cdk destroy AlbStack
+cdk destroy EcsServiceStack
+cdk destroy EcsClusterStack
+cdk destroy EcrStack
+cdk destroy IamStack
+
+
+Or all at once:
+
 cdk destroy --all --force
-But there will be dependency on the stacks so you can destroy accordingly.
 
-## 🔒 Security Considerations
+🔒 Security Considerations
 
-* **Image scanning** enabled in ECR
-* **Trivy + Gitleaks** run in CI
-* **Least privilege** stacks (split by concern)
-* **Recommendations for production**:
+Image scanning enabled in ECR
 
-## 📌 Trade-offs 
+Trivy + Gitleaks in CI/CD
 
-* **ECS EC2 vs Fargate**: EC2 used here (cost-effective, cluster control). Fargate offers easier management & better isolation.
-* **TLS**: Not implemented here, but should be added for production.
-* **Scaling**: ECS service runs 2 tasks, but auto-scaling policies can be added.
+Least privilege IAM roles
 
+Secrets stored securely (GitHub secrets + AWS Secrets Manager)
 
+📌 Trade-offs
 
+ECS EC2 vs Fargate → EC2 is cost-effective and flexible, Fargate is simpler to manage
 
+TLS → Not implemented in this sample, should be added for production
 
+Scaling → ECS Service runs 2 tasks; auto-scaling can be added
+
+Architecture match → Ensure container images are built for the same CPU architecture as ECS instances (e.g., linux/x86_64)
