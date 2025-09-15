@@ -14,7 +14,7 @@ export class EcsServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: EcsServiceStackProps) {
     super(scope, id, props);
 
-    // 1. Task Definition
+    //Task Definition
     const taskDef = new ecs.Ec2TaskDefinition(this, 'MyTaskDef');
 
     const container = taskDef.addContainer('AppContainer', {
@@ -25,10 +25,10 @@ export class EcsServiceStack extends cdk.Stack {
     });
 
     container.addPortMappings({
-      containerPort: 8000, // 👈 expose port 8000 from the container
+      containerPort: 8000, // expose port 8000 from the container
     });
 
-    // 2. ECS Service
+    // ECS Service
       const service = new ecs.Ec2Service(this, 'MyEc2Service', {
       cluster: props.cluster,
       taskDefinition: taskDef,

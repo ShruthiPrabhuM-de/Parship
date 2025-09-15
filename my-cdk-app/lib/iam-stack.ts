@@ -10,7 +10,7 @@ export class IamStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 1️⃣ Create a Managed Policy for CDK deployment
+    // Create a Managed Policy for CDK deployment
     this.cdkDeployPolicy = new iam.ManagedPolicy(this, 'CdkDeployPolicy', {
       description: 'Least privilege policy for CI/CD deployment of ECR, ECS, ALB stacks',
       statements: [
@@ -44,7 +44,7 @@ export class IamStack extends cdk.Stack {
       ],
     });
 
-    // 2️⃣ Create a CI/CD user
+    // Create a CI/CD user
     this.ciUser = new iam.User(this, 'CICDUser', {
       userName: 'ci-cd-user',
     });

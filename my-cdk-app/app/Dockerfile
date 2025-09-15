@@ -22,7 +22,6 @@ useradd -s /bin/bash -m vscode
 groupadd docker
 usermod -aG docker vscode
 EOF
-# install Docker tools (cli, buildx, compose)
 COPY --from=gloursdocker/docker / /
 EXPOSE 8000
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

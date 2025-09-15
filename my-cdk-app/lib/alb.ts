@@ -15,7 +15,7 @@ export class AlbStack extends cdk.Stack {
 
     const { vpc, service } = props;
 
-    // 1. ALB Security Group
+    // ALB Security Group
     const albSG = new ec2.SecurityGroup(this, 'AlbSG', {
       vpc,
       description: 'Allow HTTP inbound',
@@ -24,7 +24,7 @@ export class AlbStack extends cdk.Stack {
 
     albSG.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), 'Allow HTTP from anywhere');
 
-    // 2. Public Application Load Balancer
+    //  Public Application Load Balancer
     const alb = new elbv2.ApplicationLoadBalancer(this, 'MyAlb', {
       vpc,
       internetFacing: true,
@@ -32,13 +32,13 @@ export class AlbStack extends cdk.Stack {
       vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
     });
 
-    // 3. Listener
+    // Listener
     const listener = alb.addListener('HttpListener', {
       port: 80,
       open: true,
     });
 
-    // 4. Target Group → Add ECS service as target
+    // Target Group → Added ECS service as target
     listener.addTargets('EcsTargetGroup', {
       port: 8000,
       targets: [service],
@@ -51,7 +51,7 @@ export class AlbStack extends cdk.Stack {
       },
     });
 
-    // 5. Output the public ALB DNS
+    // Output the public ALB DNS
     new cdk.CfnOutput(this, 'AlbDns', {
       value: alb.loadBalancerDnsName,
       description: 'Public DNS for accessing ECS service',

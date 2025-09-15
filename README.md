@@ -163,7 +163,7 @@ cdk deploy --all --require-approval never
 
 # Destroy resources
 cdk destroy --all --force
-
+But there will be dependency on the stacks so you can destroy accordingly.
 
 ## 🔒 Security Considerations
 
@@ -172,11 +172,12 @@ cdk destroy --all --force
 * **Least privilege** stacks (split by concern)
 * **Recommendations for production**:
 
-  * Use **GitHub OIDC** instead of long-lived AWS keys
-  * Restrict ALB security group (not `0.0.0.0/0`)
-  * Add HTTPS via ACM (TLS)
-  * Use Secrets Manager for DB/API keys
-  * Add CloudWatch alarms + monitoring
+## 📌 Trade-offs 
+
+* **ECS EC2 vs Fargate**: EC2 used here (cost-effective, cluster control). Fargate offers easier management & better isolation.
+* **TLS**: Not implemented here, but should be added for production.
+* **Scaling**: ECS service runs 2 tasks, but auto-scaling policies can be added.
+
 
 
 
